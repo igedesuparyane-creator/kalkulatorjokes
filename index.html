@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Modern - Premium Paywall Joke Edition</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        calc: {
+                            bg: '#0d0f12',
+                            card: '#16191e',
+                            btn: '#21252d',
+                            btnHover: '#2a2f39',
+                            btnActive: '#1d2128',
+                            op: '#2e3542',
+                            opHover: '#384152',
+                            accent: '#3b82f6',
+                            accentHover: '#2563eb',
+                            textMuted: '#8a94a6',
+                            border: '#262b35'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .btn-calc {
+            transition: background-color 0.12s ease, transform 0.08s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-calc:active {
+            transform: scale(0.96);
+        }
+        /* Custom scrollbar for modal content */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="h-full flex items-center justify-center p-4 font-sans text-slate-100 antialiased selection:bg-blue-500/30">
+
+    <main class="w-full max-w-sm">
+        <!-- Card Container -->
+        <div class="bg-calc-card border border-calc-border rounded-3xl p-6 shadow-2xl shadow-black/60 backdrop-blur-md relative overflow-hidden">
+            
+            <!-- Header / Status Bar Accent -->
+            <div class="flex items-center justify-between mb-4 px-1">
+                <div class="flex space-x-1.5">
+                    <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                    <div class="w-3 h-3 rounded-full bg-amber-500/80"></div>
+                    <div class="w-3 h-3 rounded-full bg-emerald-500/80"></div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-wider">Free Tier</span>
+                </div>
+            </div>
+
+            <!-- Display Area -->
+            <div class="bg-calc-bg/70 rounded-2xl p-5 mb-5 border border-calc-border/60 text-right flex flex-col justify-end min-h-[110px] overflow-hidden">
+                <!-- Expression / History line -->
+                <div id="history-display" class="text-sm font-normal text-calc-textMuted min-h-[20px] truncate tracking-wide"></div>
+                <!-- Main current output line -->
+                <div id="main-display" class="text-4xl font-light text-slate-50 tracking-tight truncate mt-1">0</div>
+            </div>
+
+            <!-- Keypad Grid -->
+            <div class="grid grid-cols-4 gap-2.5">
+                <!-- Row 1 -->
+                <button onclick="handleClear()" class="btn-calc bg-calc-op/70 hover:bg-calc-opHover text-red-400 font-medium text-lg h-14 rounded-xl flex items-center justify-center border border-calc-border/40">AC</button>
+                <button onclick="handleToggleSign()" class="btn-calc bg-calc-op/70 hover:bg-calc-opHover text-slate-300 font-medium text-lg h-14 rounded-xl flex items-center justify-center border border-calc-border/40">±</button>
+                <button onclick="handlePercentage()" class="btn-calc bg-calc-op/70 hover:bg-calc-opHover text-slate-300 font-medium text-lg h-14 rounded-xl flex items-center justify-center border border-calc-border/40">%</button>
+                <button onclick="handleOperator('÷')" class="btn-calc bg-calc-op hover:bg-calc-opHover text-blue-400 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/40">÷</button>
+
+                <!-- Row 2 -->
+                <button onclick="handleNumber('7')" class="btn-calc bg-calc-btn hover:bg-calc-btnHover text-slate-100 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/30">7</button>
+                <button onclick="handleNumber('8')" class="btn-calc bg-calc-btn hover:bg-calc-btnHover text-slate-100 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/30">8</button>
+                <button onclick="handleNumber('9')" class="btn-calc bg-calc-btn hover:bg-calc-btnHover text-slate-100 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/30">9</button>
+                <button onclick="handleOperator('×')" class="btn-calc bg-calc-op hover:bg-calc-opHover text-blue-400 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/40">×</button>
+
+                <!-- Row 3 -->
+                <button onclick="handleNumber('4')" class="btn-calc bg-calc-btn hover:bg-calc-btnHover text-slate-100 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/30">4</button>
+                <button onclick="handleNumber('5')" class="btn-calc bg-calc-btn hover:bg-calc-btnHover text-slate-100 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/30">5</button>
+                <button onclick="handleNumber('6')" class="btn-calc bg-calc-btn hover:bg-calc-btnHover text-slate-100 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/30">6</button>
+                <button onclick="handleOperator('-')" class="btn-calc bg-calc-op hover:bg-calc-opHover text-blue-400 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/40">−</button>
+
+                <!-- Row 4 -->
+                <button onclick="handleNumber('1')" class="btn-calc bg-calc-btn hover:bg-calc-btnHover text-slate-100 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/30">1</button>
+                <button onclick="handleNumber('2')" class="btn-calc bg-calc-btn hover:bg-calc-btnHover text-slate-100 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/30">2</button>
+                <button onclick="handleNumber('3')" class="btn-calc bg-calc-btn hover:bg-calc-btnHover text-slate-100 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/30">3</button>
+                <button onclick="handleOperator('+')" class="btn-calc bg-calc-op hover:bg-calc-opHover text-blue-400 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/40">+</button>
+
+                <!-- Row 5 -->
+                <button onclick="handleBackspace()" class="btn-calc bg-calc-btn hover:bg-calc-btnHover text-slate-300 font-normal text-sm h-14 rounded-xl flex items-center justify-center border border-calc-border/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+                </button>
+                <button onclick="handleNumber('0')" class="btn-calc bg-calc-btn hover:bg-calc-btnHover text-slate-100 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/30">0</button>
+                <button onclick="handleDecimal()" class="btn-calc bg-calc-btn hover:bg-calc-btnHover text-slate-100 font-medium text-xl h-14 rounded-xl flex items-center justify-center border border-calc-border/30">.</button>
+                <button onclick="openPaywallModal()" class="btn-calc bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xl h-14 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25 border border-blue-400/30">=</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Joke Paywall Modal Overlay -->
+    <div id="paywall-modal" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="paywall-content" class="bg-slate-900 border border-slate-700/60 rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
+            
+            <!-- Modal Header -->
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-50">Fitur Menghitung Membutuhkan Langganan Premium! 🚀</h2>
+                <p class="text-sm text-slate-400 mt-1 max-w-md mx-auto">Masa percobaan gratis Anda telah berakhir. Pilih paket langganan untuk melihat hasil penambahan secara presisi.</p>
+            </div>
+
+            <!-- Pricing Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 overflow-y-auto custom-scroll pr-1">
+                
+                <!-- Plan 1: BASIC -->
+                <div class="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-5 flex flex-col justify-between hover:border-slate-600 transition-colors">
+                    <div>
+                        <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Basic Plan</div>
+                        <div class="text-xl font-bold text-slate-100 mb-3">Rp 15.000 <span class="text-xs font-normal text-slate-400">/bln</span></div>
+                        <ul class="text-xs text-slate-300 space-y-2 mb-4">
+                            <li class="flex items-start"><span class="text-emerald-400 mr-1.5">✓</span> Hanya bisa angka 0 - 5</li>
+                            <li class="flex items-start"><span class="text-emerald-400 mr-1.5">✓</span> Penjumlahan & Pengurangan</li>
+                            <li class="flex items-start"><span class="text-amber-400 mr-1.5">⚠️</span> Iklan tiap 3x pencet tombol</li>
+                            <li class="flex items-start"><span class="text-slate-500 mr-1.5">✗</span> Tanpa koma (desimal)</li>
+                        </ul>
+                    </div>
+                    <button onclick="subscribeJoke('Basic')" class="w-full py-2.5 px-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-100 font-semibold text-xs transition-colors">Pilih Basic</button>
+                </div>
+
+                <!-- Plan 2: PRO (Featured) -->
+                <div class="bg-gradient-to-b from-blue-950/60 to-slate-800/80 border-2 border-blue-500/80 rounded-2xl p-5 flex flex-col justify-between relative shadow-lg shadow-blue-500/10">
+                    <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] uppercase font-bold px-3 py-0.5 rounded-full tracking-wider shadow">Paling Laris</span>
+                    <div>
+                        <div class="text-xs font-semibold uppercase tracking-wider text-blue-400 mb-1">Pro Plan</div>
+                        <div class="text-xl font-bold text-slate-100 mb-3">Rp 49.000 <span class="text-xs font-normal text-slate-400">/bln</span></div>
+                        <ul class="text-xs text-slate-300 space-y-2 mb-4">
+                            <li class="flex items-start"><span class="text-emerald-400 mr-1.5">✓</span> Akses angka 0 - 9 lengkap</li>
+                            <li class="flex items-start"><span class="text-emerald-400 mr-1.5">✓</span> Perkalian & Pembagian</li>
+                            <li class="flex items-start"><span class="text-emerald-400 mr-1.5">✓</span> Bebas Iklan 100%</li>
+                            <li class="flex items-start"><span class="text-emerald-400 mr-1.5">✓</span> Hasil 2x lebih cepat</li>
+                        </ul>
+                    </div>
+                    <button onclick="subscribeJoke('Pro')" class="w-full py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-md transition-colors">Pilih Pro</button>
+                </div>
+
+                <!-- Plan 3: ULTRA / SUPREME -->
+                <div class="bg-slate-800/60 border border-purple-500/30 rounded-2xl p-5 flex flex-col justify-between hover:border-purple-500/60 transition-colors">
+                    <div>
+                        <div class="text-xs font-semibold uppercase tracking-wider text-purple-400 mb-1">Ultra Supreme</div>
+                        <div class="text-xl font-bold text-slate-100 mb-3">Rp 149.000 <span class="text-xs font-normal text-slate-400">/bln</span></div>
+                        <ul class="text-xs text-slate-300 space-y-2 mb-4">
+                            <li class="flex items-start"><span class="text-purple-400 mr-1.5">★</span> Fungsi matematika kuantum</li>
+                            <li class="flex items-start"><span class="text-emerald-400 mr-1.5">✓</span> Bebas hitung sampai tak terhingga</li>
+                            <li class="flex items-start"><span class="text-emerald-400 mr-1.5">✓</span> Jawaban dijamin 100% benar (kadang-kadang)</li>
+                            <li class="flex items-start"><span class="text-purple-400 mr-1.5">★</span> CS 24/7 via WhatsApp</li>
+                        </ul>
+                    </div>
+                    <button onclick="subscribeJoke('Ultra Supreme')" class="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition-colors">Pilih Ultra</button>
+                </div>
+
+            </div>
+
+            <!-- Toast / Joke Message Box (hidden by default) -->
+            <div id="joke-toast" class="hidden mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs text-center font-medium animate-pulse">
+                🤣 Terima kasih minat langganannya! Tapi ini cuma candaan kalkulator. Tekan "Nanti Saja" untuk menutup.
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-between border-t border-slate-800 pt-4 mt-auto">
+                <span class="text-[11px] text-slate-500">Bisa dibatalkan kapan saja (kalau beneran).</span>
+                <button onclick="closePaywallModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors">Nanti Saja / Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentInput = '0';
+        let previousInput = '';
+        let operator = null;
+        let shouldResetDisplay = false;
+
+        const mainDisplay = document.getElementById('main-display');
+        const historyDisplay = document.getElementById('history-display');
+        const paywallModal = document.getElementById('paywall-modal');
+        const paywallContent = document.getElementById('paywall-content');
+        const jokeToast = document.getElementById('joke-toast');
+
+        function formatNumber(numStr) {
+            if (numStr === 'Error' || numStr === 'Infinity' || numStr === '-Infinity') return numStr;
+            if (numStr.endsWith('.')) return numStr;
+            
+            const parts = numStr.split('.');
+            const integerPart = parseFloat(parts[0]);
+            
+            if (isNaN(integerPart)) return '0';
+            
+            let formattedInteger = integerPart.toLocaleString('en-US', { maximumFractionDigits: 0 });
+            
+            if (parts.length > 1) {
+                return `${formattedInteger}.${parts[1]}`;
+            }
+            return formattedInteger;
+        }
+
+        // Live calculation logic: recalculates instantly whenever numbers or operators change
+        function computeLiveResult() {
+            if (!operator || previousInput === '') return currentInput;
+
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+
+            if (isNaN(prev) || isNaN(current)) return currentInput;
+
+            let result = 0;
+            switch (operator) {
+                case '+': result = prev + current; break;
+                case '-': result = prev - current; break;
+                case '×': result = prev * current; break;
+                case '÷': 
+                    if (current === 0) return 'Error';
+                    result = prev / current; 
+                    break;
+                default: return currentInput;
+            }
+
+            result = Math.round(result * 1e10) / 1e10;
+            return result.toString();
+        }
+
+        function updateDisplay() {
+            if (operator && previousInput !== '' && !shouldResetDisplay) {
+                const liveRes = computeLiveResult();
+                historyDisplay.textContent = `${formatNumber(previousInput)} ${operator} ${formatNumber(currentInput)}`;
+                mainDisplay.textContent = formatNumber(liveRes);
+            } else if (operator && previousInput !== '') {
+                historyDisplay.textContent = `${formatNumber(previousInput)} ${operator}`;
+                mainDisplay.textContent = formatNumber(currentInput);
+            } else {
+                historyDisplay.textContent = '';
+                mainDisplay.textContent = formatNumber(currentInput);
+            }
+        }
+
+        function handleNumber(number) {
+            if (currentInput === '0' || shouldResetDisplay) {
+                currentInput = number;
+                shouldResetDisplay = false;
+            } else {
+                if (currentInput.replace(/[^0-9]/g, '').length < 12) {
+                    currentInput += number;
+                }
+            }
+            updateDisplay();
+        }
+
+        function handleDecimal() {
+            if (shouldResetDisplay) {
+                currentInput = '0.';
+                shouldResetDisplay = false;
+                updateDisplay();
+                return;
+            }
+            if (!currentInput.includes('.')) {
+                currentInput += '.';
+                updateDisplay();
+            }
+        }
+
+        function handleOperator(op) {
+            if (operator && !shouldResetDisplay) {
+                currentInput = computeLiveResult();
+            }
+            previousInput = currentInput;
+            operator = op;
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        function handleClear() {
+            currentInput = '0';
+            previousInput = '';
+            operator = null;
+            shouldResetDisplay = false;
+            updateDisplay();
+        }
+
+        function handleBackspace() {
+            if (shouldResetDisplay) return;
+            if (currentInput.length === 1 || (currentInput.length === 2 && currentInput.startsWith('-'))) {
+                currentInput = '0';
+            } else {
+                currentInput = currentInput.slice(0, -1);
+            }
+            updateDisplay();
+        }
+
+        function handleToggleSign() {
+            if (currentInput === '0' || currentInput === 'Error') return;
+            currentInput = (parseFloat(currentInput) * -1).toString();
+            updateDisplay();
+        }
+
+        function handlePercentage() {
+            if (currentInput === '0' || currentInput === 'Error') return;
+            currentInput = (parseFloat(currentInput) / 100).toString();
+            updateDisplay();
+        }
+
+        // Modal Paywall Jokefunctions
+        function openPaywallModal() {
+            if (operator && previousInput !== '') {
+                currentInput = computeLiveResult();
+                historyDisplay.textContent = `${formatNumber(previousInput)} ${operator} ${formatNumber(currentInput)} =`;
+                operator = null;
+                previousInput = '';
+                shouldResetDisplay = true;
+            }
+            
+            jokeToast.classList.add('hidden');
+            paywallModal.classList.remove('opacity-0', 'pointer-events-none');
+            paywallContent.classList.remove('scale-95');
+            paywallContent.classList.add('scale-100');
+        }
+
+        function closePaywallModal() {
+            paywallModal.classList.add('opacity-0', 'pointer-events-none');
+            paywallContent.classList.remove('scale-100');
+            paywallContent.classList.add('scale-95');
+        }
+
+        function subscribeJoke(planName) {
+            jokeToast.textContent = `🤣 Paket ${planName} diproses! Tapi ini cuma candaan kalkulator. Silakan tekan Tutup!`;
+            jokeToast.classList.remove('hidden');
+        }
+
+        // Keybindings
+        document.addEventListener('keydown', (event) => {
+            const key = event.key;
+
+            if (paywallModal.classList.contains('pointer-events-none')) {
+                if (key >= '0' && key <= '9') {
+                    handleNumber(key);
+                } else if (key === '.') {
+                    handleDecimal();
+                } else if (key === '+') {
+                    handleOperator('+');
+                } else if (key === '-') {
+                    handleOperator('-');
+                } else if (key === '*') {
+                    handleOperator('×');
+                } else if (key === '/') {
+                    event.preventDefault();
+                    handleOperator('÷');
+                } else if (key === 'Enter' || key === '=') {
+                    event.preventDefault();
+                    openPaywallModal();
+                } else if (key === 'Backspace') {
+                    handleBackspace();
+                } else if (key === 'Escape') {
+                    handleClear();
+                } else if (key === '%') {
+                    handlePercentage();
+                }
+            } else {
+                if (key === 'Escape') {
+                    closePaywallModal();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
